@@ -4,6 +4,10 @@
 
 A compact Python implementation of the probabilistic Earley parser (Stolcke 1994/1995) with prefix probabilities and an adapter for constrained LLM decoding.
 
+Note: Portions of this codebase and documentation were authored with AI assistance.
+Please review changes with care and validate behavior in your environment before
+production use.
+
 ## Features
 - Normalized PCFG with log-space probabilities.
 - Earley parser tracking forward (alpha) and inner (gamma) scores.
