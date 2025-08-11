@@ -4,7 +4,11 @@ from .stolcke_parser import StolckeParser
 
 
 class ConstrainedDecoderAdapter:
-    """Expose allowed token IDs for masking logits during LLM decoding."""
+    """Expose allowed token IDs for masking logits during LLM decoding.
+
+    Provide simple helpers to obtain the set of allowed token IDs and a
+    boolean mask over a fixed-size vocabulary for efficient masking.
+    """
     def __init__(
         self,
         parser: StolckeParser,
@@ -30,3 +34,15 @@ class ConstrainedDecoderAdapter:
 
     def step_with_token(self, token_id: int) -> bool:
         return self.parser.step(self.id2s(token_id))
+
+    def allowed_token_mask(self, vocab_size: int) -> list[bool]:
+        """Return a boolean mask of length `vocab_size` with True for allowed IDs.
+
+        Useful to apply on logits tensors; disallow by setting logits[~mask] = -inf.
+        """
+        allowed = self.allowed_token_ids()
+        mask = [False] * vocab_size
+        for tid in allowed:
+            if 0 <= tid < vocab_size:
+                mask[tid] = True
+        return mask

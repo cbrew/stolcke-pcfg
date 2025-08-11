@@ -15,6 +15,7 @@ nav:
   - Grammar: grammar.md
   - Unit Transform: unit_transform.md
   - Adapter: adapter.md
+  - Constrained Decoding: constrained_decoding.md
   - Examples: examples.md
   - JSON Constraints: json_constraints.md
   - Development: development.md
