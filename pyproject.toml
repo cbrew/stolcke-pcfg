@@ -7,7 +7,9 @@ name = "stolcke_pcfg"
 version = "0.2.0"
 description = "Stolcke parser package"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "numpy>=1.26",
+]
 
 [project.scripts]
 stolcke-parser = "stolcke_pcfg.__main__:main"
