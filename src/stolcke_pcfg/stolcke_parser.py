@@ -9,8 +9,11 @@ from .util import LOG_ZERO, LogProb, logsumexp
 class StolckeParser:
     """Stolcke (1994/1995) probabilistic Earley with α/γ and prefix probs.
 
-    Restrictions in this reference implementation:
-      - No ε-productions and no unit productions. (Planned extension.)
+    Behavior and constraints:
+      - Epsilon (empty) productions are not supported and will raise on construction.
+      - Unit productions are supported via a pre-parse elimination transform.
+      - `prefix_logprob()` is computed online from α at each position.
+      - `sentence_logprob()` is computed exactly via a span-based inside DP.
     """
 
     def __init__(self, grammar: PCFG, start_symbol: str, *, eliminate_units: bool = True):

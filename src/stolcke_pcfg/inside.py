@@ -5,6 +5,12 @@ from .util import LOG_ZERO, LogProb, logsumexp
 
 
 def sentence_inside_logprob(grammar: PCFG, tokens: list[str], start_symbol: str) -> LogProb:
+    """Exact inside log-probability for tokens under `grammar` from `start_symbol`.
+
+    Assumes: no epsilon productions (each nonterminal expands to at least one token).
+    Uses a memoized span-based dynamic program over rules of arbitrary arity.
+    Returns LOG_ZERO if the string is not generated.
+    """
     n = len(tokens)
 
     # Pre-index rules per LHS
