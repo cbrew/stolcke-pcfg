@@ -69,3 +69,31 @@ def test_unit_transform_divergent_spectral_radius_raises():
     ])
     with pytest.raises(ValueError):
         eliminate_unit_productions(G)
+
+
+def test_mixed_unit_and_nonunit_on_same_lhs():
+    # S -> A
+    # A -> B (0.5) | 'x' (0.5)   # mix of unit and non-unit on same LHS
+    # B -> C (0.4) | 'y' (0.6)   # mix again
+    # C -> 'z'
+    G = PCFG([
+        ("S", ["A"], 1.0),
+        ("A", ["B"], 0.5),
+        ("A", ["x"], 0.5),
+        ("B", ["C"], 0.4),
+        ("B", ["y"], 0.6),
+        ("C", ["z"], 1.0),
+    ])
+    GT = eliminate_unit_productions(G)
+
+    # Check that sentence probabilities are preserved across transform
+    cases = {
+        "x": math.log(0.5),
+        "y": math.log(0.5 * 0.6),
+        "z": math.log(0.5 * 0.4 * 1.0),
+    }
+    for tok, expected in cases.items():
+        lp_orig = sentence_inside_logprob(G, [tok], "S")
+        lp_trans = sentence_inside_logprob(GT, [tok], "S")
+        assert logeq(lp_orig, expected)
+        assert logeq(lp_trans, expected)
