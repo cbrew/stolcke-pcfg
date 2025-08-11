@@ -1,0 +1,28 @@
+# Environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+

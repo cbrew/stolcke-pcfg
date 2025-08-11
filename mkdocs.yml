@@ -1,0 +1,25 @@
+site_name: Stolcke PCFG Parser
+site_description: Probabilistic Earley (Stolcke) parser with prefix probabilities in Python.
+site_url: https://cbrew.github.io/stolcke-pcfg/
+repo_url: https://github.com/cbrew/stolcke-pcfg
+theme:
+  name: material
+  features:
+    - navigation.tracking
+    - content.code.copy
+nav:
+  - Home: docs/index.md
+  - Architecture: docs/architecture.md
+  - API: docs/api.md
+  - CLI: docs/cli.md
+  - Grammar: docs/grammar.md
+  - Adapter: docs/adapter.md
+  - Examples: docs/examples.md
+  - Development: docs/development.md
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+plugins:
+  - search

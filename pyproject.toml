@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "stolcke_pcfg"
+version = "0.1.0"
+description = "Stolcke parser package"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+stolcke-parser = "stolcke_pcfg.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stolcke_pcfg"]
+
+[tool.uv]
+dev-dependencies = [
+  "ruff>=0.5.7",
+  "pre-commit>=3.7.1",
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+  "mkdocs>=1.6",
+  "mkdocs-material>=9.5",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "I",  # isort
+  "UP", # pyupgrade
+  "B",  # bugbear
+  "C4", # comprehensions
+  "SIM" # simplify
+]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["stolcke_pcfg"]
+split-on-trailing-comma = true
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
