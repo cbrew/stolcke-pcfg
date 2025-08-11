@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .earley_core import EarleyChart, EarleyItem
 from .util import LOG_ZERO, LogProb, logsumexp
 

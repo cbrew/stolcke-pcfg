@@ -1,7 +1,4 @@
-from __future__ import annotations
-
-from functools import lru_cache
-from typing import Iterable
+from functools import cache
 
 from .grammar import PCFG, Rule
 from .util import LOG_ZERO, LogProb, logsumexp
@@ -13,7 +10,7 @@ def sentence_inside_logprob(grammar: PCFG, tokens: list[str], start_symbol: str)
     # Pre-index rules per LHS
     rules_for: dict[str, list[Rule]] = {nt: grammar.rules_for(nt) for nt in grammar.nonterminals}
 
-    @lru_cache(maxsize=None)
+    @cache
     def inside_nt(A: str, i: int, k: int) -> LogProb:
         if i >= k:
             return LOG_ZERO
@@ -22,12 +19,12 @@ def sentence_inside_logprob(grammar: PCFG, tokens: list[str], start_symbol: str)
             total = logsumexp(total, rule_inside(r, i, k))
         return total
 
-    @lru_cache(maxsize=None)
+    @cache
     def rule_inside(r: Rule, i: int, k: int) -> LogProb:
         # Compute inside prob for rule r covering tokens[i:k]
         return r.logp + match_rhs(r.rhs, 0, i, k)
 
-    @lru_cache(maxsize=None)
+    @cache
     def match_rhs(rhs: tuple[str, ...], pos: int, i: int, k: int) -> LogProb:
         # Returns log prob for matching rhs[pos:] to tokens[i:k]
         if pos == len(rhs):
@@ -65,4 +62,3 @@ def sentence_inside_logprob(grammar: PCFG, tokens: list[str], start_symbol: str)
             return LOG_ZERO
 
     return inside_nt(start_symbol, 0, n)
-

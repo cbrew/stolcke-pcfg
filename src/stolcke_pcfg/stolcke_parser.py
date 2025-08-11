@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from .earley_core import BP, EarleyItem
 from .grammar import PCFG, Rule
+from .inside import sentence_inside_logprob
 from .probabilities import ProbChart
 from .transform import eliminate_unit_productions
 from .util import LOG_ZERO, LogProb, logsumexp
-from .inside import sentence_inside_logprob
 
 
 class StolckeParser:

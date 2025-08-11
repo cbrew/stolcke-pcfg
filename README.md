@@ -8,6 +8,7 @@ A compact Python implementation of the probabilistic Earley parser (Stolcke 1994
 - Normalized PCFG with log-space probabilities.
 - Earley parser tracking forward (alpha) and inner (gamma) scores.
 - Prefix probability for incremental decoding.
+- Exact sentence log-probability via a span-based inside DP.
 - Simple demo CLI and adapter to map allowed terminals to token IDs.
 
 ## Install & Run
@@ -32,7 +33,8 @@ P.step("a"); print(P.prefix_logprob(), P.accepted())
 - Architecture: docs/architecture.md
 - API: docs/api.md
 - CLI: docs/cli.md
- - Unit transform: docs/unit_transform.md
+- Unit transform: docs/unit_transform.md
+- Examples: docs/examples.md
 
 Serve docs locally: `make docs-serve` (or `uv run mkdocs serve`). Build: `make docs-build`. Hosted docs: https://cbrew.github.io/stolcke-pcfg/
 
@@ -41,4 +43,5 @@ Serve docs locally: `make docs-serve` (or `uv run mkdocs serve`). Build: `make d
 - Conventional Commits, focused PRs. See docs/development.md.
 
 ## Notes
-- Unit productions supported via matrix-based closure; epsilon productions are not supported. Left recursion supported.
+- Unit productions supported via matrix-based closure; epsilon productions are not supported.
+- Left recursion supported; coordination (e.g., NP conjunction) yields correct Catalan counts.

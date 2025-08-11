@@ -1,6 +1,6 @@
 # Architecture
 
-This package implements a probabilistic Earley parser with Stolcke-style forward (alpha) and inner (gamma) probabilities. Components are small and focused.
+This package implements a probabilistic Earley parser with Stolcke-style forward (alpha) and inner (gamma) probabilities. Sentence probabilities are computed exactly via a span-based inside DP.
 
 ## Modules
 
@@ -14,7 +14,10 @@ This package implements a probabilistic Earley parser with Stolcke-style forward
 - `probabilities.py`
   - `ProbChart`: extends chart with `alpha` (forward) and `gamma` (inner) maps; log-sum accumulation.
 - `stolcke_parser.py`
-  - `StolckeParser`: orchestrates SCAN, PREDICT, COMPLETE, keeps prefix probability, exposes `allowed_terminals()`.
+  - `StolckeParser`: orchestrates SCAN, PREDICT, COMPLETE; keeps prefix probability and exposes `allowed_terminals()`.
+  - `sentence_logprob()`: exact log-probability via an inside DP over the unit-eliminated grammar and consumed tokens.
+ - `inside.py`
+  - Span-based inside dynamic program used for `sentence_logprob()` (no epsilons; supports left recursion).
 - `constrained_adapter.py`
   - `ConstrainedDecoderAdapter`: maps allowed terminals to token IDs for LLM decoding.
 

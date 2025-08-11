@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
 
@@ -19,7 +17,7 @@ class EarleyItem:
     def finished(self) -> bool:
         return self.dot >= len(self.rule.rhs)
 
-    def advance(self) -> EarleyItem:
+    def advance(self) -> "EarleyItem":
         return EarleyItem(self.rule, self.dot + 1, self.start)
 
 

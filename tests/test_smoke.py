@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from stolcke_pcfg import PCFG, StolckeParser
 
 

@@ -18,7 +18,7 @@ from stolcke_pcfg import PCFG, Rule, StolckeParser, ConstrainedDecoderAdapter
 - `is_terminal(sym: str) -> bool`
 
 ## stolcke_parser.StolckeParser
-- `StolckeParser(grammar: PCFG, start_symbol: str)`
+- `StolckeParser(grammar: PCFG, start_symbol: str, *, eliminate_units: bool = True)`
   - Validates unsupported productions; creates augmented start `S' -> S`.
 - `reset() -> None`
 - `allowed_terminals() -> set[str]`
@@ -26,6 +26,8 @@ from stolcke_pcfg import PCFG, Rule, StolckeParser, ConstrainedDecoderAdapter
   - Advances one token if allowed; updates prefix probability.
 - `prefix_logprob() -> float`
 - `accepted() -> bool`
+- `sentence_logprob() -> float`
+  - Exact sentence log-probability via a span-based inside DP over the unit-eliminated grammar.
 
 ## constrained_adapter.ConstrainedDecoderAdapter
 - `ConstrainedDecoderAdapter(parser, token_id_to_str, str_to_token_id, next_token_filter=None)`
@@ -36,4 +38,3 @@ from stolcke_pcfg import PCFG, Rule, StolckeParser, ConstrainedDecoderAdapter
 ## Notes
 - All probabilities are accumulated in log-space. Use `math.exp(logp)` to inspect linear values.
 - The internal `alpha`/`gamma` arrays live in `probabilities.ProbChart` and are not part of the public API surface.
-

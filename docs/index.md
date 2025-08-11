@@ -5,6 +5,7 @@ A compact implementation of the probabilistic Earley parser (Stolcke 1994/1995) 
 - A normalized PCFG model with log-space probabilities.
 - An Earley-style parser that tracks forward (alpha) and inner (gamma) scores.
 - Prefix probability for incremental decoding, plus an adapter for constrained LLM generation.
+- Exact sentence log-probability via a span-based inside DP.
 - A small demo CLI and a simple smoke test.
 
 ## Installation
@@ -29,6 +30,7 @@ print(P.allowed_terminals())   # {"a"}
 P.step("a")                    # True
 print(P.prefix_logprob())      # log P(prefix)
 print(P.accepted())            # True after ≥1 token
+print(P.sentence_logprob())    # exact log P(sentence) via inside DP
 ```
 
 ## Quickstart (CLI)
@@ -45,4 +47,3 @@ See docs/cli.md for details.
 - Prefix probability: sum of alpha over scanned states at each prefix.
 
 For design and API details, see docs/architecture.md and docs/api.md.
-
