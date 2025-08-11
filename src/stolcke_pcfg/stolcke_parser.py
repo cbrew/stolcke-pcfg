@@ -3,7 +3,9 @@ from __future__ import annotations
 from .earley_core import BP, EarleyItem
 from .grammar import PCFG, Rule
 from .probabilities import ProbChart
+from .transform import eliminate_unit_productions
 from .util import LOG_ZERO, LogProb, logsumexp
+from .inside import sentence_inside_logprob
 
 
 class StolckeParser:
@@ -13,8 +15,14 @@ class StolckeParser:
       - No ε-productions and no unit productions. (Planned extension.)
     """
 
-    def __init__(self, grammar: PCFG, start_symbol: str):
-        self.G = grammar
+    def __init__(self, grammar: PCFG, start_symbol: str, *, eliminate_units: bool = True):
+        # Reject epsilon productions (not supported by this implementation)
+        for lhs in grammar.nonterminals:
+            for r in grammar.rules_for(lhs):
+                if len(r.rhs) == 0:
+                    raise ValueError("Epsilon (empty) productions are not supported")
+        # Eliminate unit productions to avoid unit-cycles at parse time
+        self.G = eliminate_unit_productions(grammar) if eliminate_units else grammar
         self.S = start_symbol
         self._start_rule = Rule("S'", (self.S,), 0.0)
         self.reset()
@@ -22,6 +30,7 @@ class StolckeParser:
     def reset(self) -> None:
         self.chart = ProbChart()
         self.pos = 0
+        self._tokens: list[str] = []
         self.chart.ensure_pos(0)
         start_item = EarleyItem(self._start_rule, 0, 0)
         # Initialize α and γ at position 0 for the augmented start
@@ -78,6 +87,7 @@ class StolckeParser:
         # COMPLETE+PREDICT closure at k+1
         self._complete_predictor_loop(k + 1)
         self.pos += 1
+        self._tokens.append(terminal)
         return True
 
     def prefix_logprob(self) -> LogProb:
@@ -91,51 +101,77 @@ class StolckeParser:
                 return True
         return False
 
+    def sentence_logprob(self) -> LogProb:
+        """Log P(tokens[0:pos]) if it's a complete sentence; LOG_ZERO otherwise.
+
+        Returns the inside probability computed via a span-based DP for stability.
+        """
+        return sentence_inside_logprob(self.G, self._tokens, self.S)
+
     # -------------------- internal closure --------------------
     def _complete_predictor_loop(self, k: int) -> None:
-        agenda = list(self.chart.items[k].keys())
-        seen: set[EarleyItem] = set()
-        while agenda:
-            it = agenda.pop()
-            if it in seen:
-                continue
-            seen.add(it)
+        from collections import deque
+
+        queue = deque(self.chart.items[k].keys())
+        while queue:
+            it = queue.popleft()
             nxt = it.next_symbol()
             if nxt is None:
                 # COMPLETER: combine waiting parents at position i with child's γ
                 i = it.start
                 g_child = self.chart.get_gamma(k, it)
+                if g_child == LOG_ZERO:
+                    continue
                 for pit in list(self.chart.items[i].keys()):
                     if pit.next_symbol() == it.rule.lhs:
                         nit = pit.advance()
+                        new_struct = False
                         if nit not in self.chart.items[k]:
                             self.chart.items[k][nit] = 0.0
                             self.chart.bp[k][nit] = BP("COMP", pit, it)
-                            agenda.append(nit)
-                        # α' += α(parent) * γ(child)
-                        a_parent = self.chart.get_alpha(i, pit)
-                        if a_parent != LOG_ZERO and g_child != LOG_ZERO:
-                            self.chart.add_alpha(k, nit, a_parent + g_child)
+                            new_struct = True
+                        changed = False
+                        # α' += α(parent) * γ(child) only if β is empty (no epsilons supported)
+                        if nit.dot == len(nit.rule.rhs):
+                            a_parent = self.chart.get_alpha(i, pit)
+                            if a_parent != LOG_ZERO:
+                                prev = self.chart.get_alpha(k, nit)
+                                self.chart.add_alpha(k, nit, a_parent + g_child)
+                                if self.chart.get_alpha(k, nit) != prev:
+                                    changed = True
                         # γ' += γ(parent) * γ(child)
                         g_parent = self.chart.get_gamma(i, pit)
-                        if g_parent != LOG_ZERO and g_child != LOG_ZERO:
+                        if g_parent != LOG_ZERO:
+                            prevg = self.chart.get_gamma(k, nit)
                             self.chart.add_gamma(k, nit, g_parent + g_child)
+                            if self.chart.get_gamma(k, nit) != prevg:
+                                changed = True
+                        if new_struct or changed:
+                            queue.append(nit)
             else:
                 if not self.G.is_terminal(nxt):
                     # PREDICTOR: expand nonterminal
+                    beta_nonempty = (it.dot + 1) < len(it.rule.rhs)
                     for r in self.G.rules_for(nxt):
                         nit = EarleyItem(r, 0, k)
-                        is_new = False
+                        new_struct = False
                         if nit not in self.chart.items[k]:
                             self.chart.items[k][nit] = 0.0
                             self.chart.bp[k][nit] = BP("PRED", it)
-                            agenda.append(nit)
-                            is_new = True
-                        # α' += α(current) * P(Y->γ)
-                        a_cur = self.chart.get_alpha(k, it)
-                        if a_cur != LOG_ZERO:
-                            self.chart.add_alpha(k, nit, a_cur + r.logp)
-                        # γ init: set rule prob once per predicted item
-                        if is_new:
+                            new_struct = True
+                        changed = False
+                        # Predictor α only when suffix β is empty (no epsilons supported)
+                        if not beta_nonempty:
+                            a_cur = self.chart.get_alpha(k, it)
+                            if a_cur != LOG_ZERO:
+                                prev = self.chart.get_alpha(k, nit)
+                                self.chart.add_alpha(k, nit, a_cur + r.logp)
+                                if self.chart.get_alpha(k, nit) != prev:
+                                    changed = True
+                        # γ init: set rule prob once
+                        prevg = self.chart.get_gamma(k, nit)
+                        if prevg == LOG_ZERO:
                             self.chart.add_gamma(k, nit, r.logp)
-                # else: waiting for terminal scan
+                            changed = True
+                        if new_struct or changed:
+                            queue.append(nit)

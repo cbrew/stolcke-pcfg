@@ -15,8 +15,8 @@ def _demo_parser() -> StolckeParser:
     return StolckeParser(g, "S")
 
 
-def run_sequence(tokens: list[str]) -> int:
-    p = _demo_parser()
+def run_sequence(tokens: list[str], *, eliminate_units: bool = True) -> int:
+    p = StolckeParser(_demo_parser().G, "S", eliminate_units=eliminate_units)
     print(f"Allowed at start: {sorted(p.allowed_terminals())}")
     for t in tokens:
         ok = p.step(t)
@@ -41,9 +41,14 @@ def main(argv: list[str] | None = None) -> int:
         nargs="*",
         help="Space-separated input tokens (default: 'a a a').",
     )
+    parser.add_argument(
+        "--no-unit-elim",
+        action="store_true",
+        help="Disable unit-production elimination (not recommended).",
+    )
     args = parser.parse_args(argv)
     tokens = args.tokens or ["a", "a", "a"]
-    return run_sequence(tokens)
+    return run_sequence(tokens, eliminate_units=not args.no_unit_elim)
 
 
 if __name__ == "__main__":  # pragma: no cover

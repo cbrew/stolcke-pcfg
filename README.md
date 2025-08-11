@@ -13,6 +13,7 @@ A compact Python implementation of the probabilistic Earley parser (Stolcke 1994
 ## Install & Run
 - Create env and install: `make setup` (or `uv venv && uv sync`).
 - Run demo CLI: `make run` or `uv run stolcke-parser a a a`.
+  - Optionally disable unit elimination: `uv run stolcke-parser --no-unit-elim a a a`.
 - Lint/format: `make lint` / `make fmt`. Tests: `make test`. Coverage: `make coverage`.
 
 ## Library Quickstart
@@ -31,6 +32,7 @@ P.step("a"); print(P.prefix_logprob(), P.accepted())
 - Architecture: docs/architecture.md
 - API: docs/api.md
 - CLI: docs/cli.md
+ - Unit transform: docs/unit_transform.md
 
 Serve docs locally: `make docs-serve` (or `uv run mkdocs serve`). Build: `make docs-build`. Hosted docs: https://cbrew.github.io/stolcke-pcfg/
 
@@ -39,4 +41,4 @@ Serve docs locally: `make docs-serve` (or `uv run mkdocs serve`). Build: `make d
 - Conventional Commits, focused PRs. See docs/development.md.
 
 ## Notes
-- Supports epsilon and unit productions; left recursion supported.
+- Unit productions supported via matrix-based closure; epsilon productions are not supported. Left recursion supported.

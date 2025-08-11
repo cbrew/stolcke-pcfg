@@ -6,7 +6,7 @@ The `PCFG` class represents a probabilistic context-free grammar with per-LHS no
 
 Create a grammar from triplets `(lhs, rhs, p)` where:
 - `lhs: str`
-- `rhs: Iterable[str]` (use empty for epsilon; unit productions like `A -> B` allowed)
+- `rhs: Iterable[str]` (no empty RHS; unit productions like `A -> B` allowed)
 - `p: float`, `p > 0`
 
 Example:
@@ -33,4 +33,4 @@ Probabilities are normalized per LHS during construction.
 
 - Nonterminals are exactly the symbols that appear as an LHS.
 - Terminals are symbols that never appear as an LHS.
-- Epsilon and unit productions (e.g., `A -> B`) are supported. Left recursion is supported.
+- Unit productions (e.g., `A -> B`) are supported via a closure transform; epsilon is not supported. Left recursion is supported.

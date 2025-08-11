@@ -28,7 +28,8 @@ This package implements a probabilistic Earley parser with Stolcke-style forward
 
 ## Constraints and Assumptions
 
-- Epsilon and unit productions are supported; left recursion allowed.
+- Unit productions are supported via a matrix-based elimination transform before parsing.
+- Epsilon (empty) productions are not supported; supply grammars without ε.
 - Probabilities are in log-space; `LOG_ZERO` sentinel avoids `-inf` arithmetic.
 - Terminals are symbols that never appear on any LHS.
 
