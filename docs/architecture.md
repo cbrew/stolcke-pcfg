@@ -28,11 +28,10 @@ This package implements a probabilistic Earley parser with Stolcke-style forward
 
 ## Constraints and Assumptions
 
-- No epsilon or unit productions (planned extension); left recursion allowed.
+- Epsilon and unit productions are supported; left recursion allowed.
 - Probabilities are in log-space; `LOG_ZERO` sentinel avoids `-inf` arithmetic.
 - Terminals are symbols that never appear on any LHS.
 
 ## Complexity
 
 - Worst-case cubic in input length for general CFGs (Earley), with grammar-dependent constants. Alpha/gamma bookkeeping adds overhead but remains linear in number of state updates.
-

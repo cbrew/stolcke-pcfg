@@ -14,13 +14,6 @@ class StolckeParser:
     """
 
     def __init__(self, grammar: PCFG, start_symbol: str):
-        # Validate forbidden productions for now
-        for lhs in grammar.nonterminals:
-            for r in grammar.rules_for(lhs):
-                if len(r.rhs) == 0:
-                    raise ValueError("ε-productions not supported yet")
-                if len(r.rhs) == 1 and r.rhs[0] in grammar.nonterminals:
-                    raise ValueError("Unit productions not supported yet")
         self.G = grammar
         self.S = start_symbol
         self._start_rule = Rule("S'", (self.S,), 0.0)
@@ -132,14 +125,17 @@ class StolckeParser:
                     # PREDICTOR: expand nonterminal
                     for r in self.G.rules_for(nxt):
                         nit = EarleyItem(r, 0, k)
+                        is_new = False
                         if nit not in self.chart.items[k]:
                             self.chart.items[k][nit] = 0.0
                             self.chart.bp[k][nit] = BP("PRED", it)
                             agenda.append(nit)
+                            is_new = True
                         # α' += α(current) * P(Y->γ)
                         a_cur = self.chart.get_alpha(k, it)
                         if a_cur != LOG_ZERO:
                             self.chart.add_alpha(k, nit, a_cur + r.logp)
-                        # γ init: accumulate rule prob
-                        self.chart.add_gamma(k, nit, r.logp)
+                        # γ init: set rule prob once per predicted item
+                        if is_new:
+                            self.chart.add_gamma(k, nit, r.logp)
                 # else: waiting for terminal scan

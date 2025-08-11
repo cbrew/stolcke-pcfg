@@ -39,4 +39,4 @@ Serve docs locally: `make docs-serve` (or `uv run mkdocs serve`). Build: `make d
 - Conventional Commits, focused PRs. See docs/development.md.
 
 ## Notes
-- Current limitation: no epsilon or unit productions; left recursion supported.
+- Supports epsilon and unit productions; left recursion supported.
