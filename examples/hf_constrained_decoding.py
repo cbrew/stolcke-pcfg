@@ -81,9 +81,11 @@ def greedy_constrained(model_name: str = "gpt2", max_new_tokens: int = 64) -> No
         next_token_filter=single_token_filter_factory(tok),
     )
 
-    # Prompt (empty or provide a starting context that matches grammar)
-    input_ids = tok.encode("", return_tensors="pt")
+    # Start with BOS token for proper model initialization
+    # Then we'll mask the next token predictions based on grammar
+    input_ids = torch.tensor([[tok.bos_token_id]], dtype=torch.long)
     generated = input_ids.clone()
+    print(f"Starting generation with BOS token {tok.bos_token_id}")
 
     for step in range(max_new_tokens):
         with torch.no_grad():
@@ -92,17 +94,17 @@ def greedy_constrained(model_name: str = "gpt2", max_new_tokens: int = 64) -> No
 
         # Mask disallowed tokens
         mask = adapter.allowed_token_mask(vocab_size=logits.size(-1))
-        disallowed = (~torch.tensor(mask, dtype=torch.bool)).to(logits.device)
+        disallowed = ~torch.tensor(mask, dtype=torch.bool, device=logits.device)
         logits[0, disallowed] = -1e30
 
         # Greedy pick
-        next_id = int(torch.argmax(logits, dim=-1))
+        next_id = int(torch.argmax(logits, dim=-1).item())
 
         progressed = adapter.step_with_token(next_id)
         if not progressed:
             print("Token not permitted by grammar; stopping.")
             break
-        generated = torch.cat([generated, torch.tensor([[next_id]])], dim=-1)
+        generated = torch.cat([generated, torch.tensor([[next_id]], device=generated.device)], dim=-1)
 
         token_str = tok.decode([next_id], clean_up_tokenization_spaces=False)
         print(f"@{step} next={next_id} {token_str!r}; allowed={len(adapter.allowed_token_ids())}")
