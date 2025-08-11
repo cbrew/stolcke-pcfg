@@ -16,6 +16,7 @@ nav:
   - Unit Transform: unit_transform.md
   - Adapter: adapter.md
   - Examples: examples.md
+  - JSON Constraints: json_constraints.md
   - Development: development.md
 markdown_extensions:
   - admonition
