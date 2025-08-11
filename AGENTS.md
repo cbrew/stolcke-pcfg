@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+[![Docs](https://img.shields.io/badge/docs-mkdocs--material-blue)](https://cbrew.github.io/stolcke-pcfg/)
+
 This guide explains how to structure, build, test, and contribute to this repository. Keep changes small and focused; prefer automation via Make targets and scripts.
 
 ## Project Structure & Module Organization
@@ -38,4 +40,3 @@ Direct equivalents: `uv venv`, `uv sync`, `uv run ruff check .`, `uv run pytest`
 ## Security & Configuration Tips
 - Do not commit secrets. Use `.env`; maintain `.env.example` with required variables.
 - Configure via environment variables; document defaults/behavior in `docs/`.
-

@@ -8,14 +8,14 @@ theme:
     - navigation.tracking
     - content.code.copy
 nav:
-  - Home: docs/index.md
-  - Architecture: docs/architecture.md
-  - API: docs/api.md
-  - CLI: docs/cli.md
-  - Grammar: docs/grammar.md
-  - Adapter: docs/adapter.md
-  - Examples: docs/examples.md
-  - Development: docs/development.md
+  - Home: index.md
+  - Architecture: architecture.md
+  - API: api.md
+  - CLI: cli.md
+  - Grammar: grammar.md
+  - Adapter: adapter.md
+  - Examples: examples.md
+  - Development: development.md
 markdown_extensions:
   - admonition
   - codehilite
