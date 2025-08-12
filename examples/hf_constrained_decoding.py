@@ -58,8 +58,15 @@ def single_token_filter_factory(tokenizer) -> callable:
 
 
 def greedy_constrained(model_name: str = "gpt2", max_new_tokens: int = 64) -> None:
+    # Determine the best available device for Apple Silicon compatibility
+    if torch.backends.mps.is_available() if hasattr(torch.backends, 'mps') else False:
+        device = torch.device("mps")
+    else:
+        device = torch.device("cpu")
+    
     tok = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
+    model = model.to(device)  # Move model to selected device
     model.eval()
 
     # Build grammar + parser
@@ -83,9 +90,9 @@ def greedy_constrained(model_name: str = "gpt2", max_new_tokens: int = 64) -> No
 
     # Start with BOS token for proper model initialization
     # Then we'll mask the next token predictions based on grammar
-    input_ids = torch.tensor([[tok.bos_token_id]], dtype=torch.long)
+    input_ids = torch.tensor([[tok.bos_token_id]], dtype=torch.long, device=device)
     generated = input_ids.clone()
-    print(f"Starting generation with BOS token {tok.bos_token_id}")
+    print(f"Starting generation with BOS token {tok.bos_token_id} on device {device}")
 
     for step in range(max_new_tokens):
         with torch.no_grad():

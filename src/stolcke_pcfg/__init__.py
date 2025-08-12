@@ -1,6 +1,7 @@
 from .constrained_adapter import ConstrainedDecoderAdapter
 from .grammar import PCFG, Rule
 from .hf_logits import GrammarConstrainedLogitsProcessor, make_hf_logits_processor
+from .robust_adapter import RobustConstrainedAdapter
 from .stolcke_parser import StolckeParser
 from .transform import eliminate_unit_productions
 
@@ -9,6 +10,7 @@ __all__ = [
     "Rule",
     "StolckeParser",
     "ConstrainedDecoderAdapter",
+    "RobustConstrainedAdapter",
     "eliminate_unit_productions",
     "GrammarConstrainedLogitsProcessor",
     "make_hf_logits_processor",
